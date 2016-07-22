@@ -81,11 +81,12 @@ typedef struct SMData SMDATA;
 
 class Socket{
 private:
-    SOCKADDRS  sockAddr;
-    int    sockeFileDescription = 0; // 文件描述
-    int    receiveTimeOut       = 5; // 监听接收超时
-    const char * session;            // 用户Session
-    const char * userid;             // 用户userid
+    SOCKADDRS      sockAddr;
+    int            sockeFileDescription = 0;  // 文件描述
+    int            receiveTimeOut       = 5;  // 监听接收超时
+    const char     * session;                 // 用户Session
+    const char     * userid;                  // 用户userid
+    bool           isconnect            = false; // Socket连接状态
 public:
     // 构造函数
     Socket();
@@ -215,6 +216,23 @@ public:
         return sockAddr.sin_port;
     }
     
+    
+    // 获得连接状态
+    bool isConnect(){
+        return isconnect;
+    }
+    
+    // 设置连接状态
+    // @connect socket是否连接 false表示还没有连接 true为连接状态
+    void setIsConnect(bool connect){
+        isconnect = connect;
+    }
+    
+    // 获得连接状态
+    // 返回false表示还没有连接 true为连接状态
+    bool getIsConnect(void){
+        return isconnect;
+    }
     
 };
 

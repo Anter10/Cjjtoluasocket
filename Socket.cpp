@@ -69,6 +69,11 @@ int Socket::Connect(const char * ip , unsigned short port){
     sockAddr.sin_addr.s_addr = inet_addr(ip);
     sockAddr.sin_port = htons(port);
     int ret = connect(sockeFileDescription, (struct sockaddr*)&sockAddr, sizeof(sockAddr));
+    if(ret != -1){
+        setIsConnect(true);
+    }else{
+        setIsConnect(false);
+    }
     return ret;
 }
 
@@ -78,6 +83,11 @@ int Socket::Connect(const char * ip, unsigned short port, const char * session){
     sockAddr.sin_port = htons(port);
     int ret = connect(sockeFileDescription, (struct sockaddr*)&sockAddr, sizeof(sockAddr));
     this->session = session;
+    if(ret != -1){
+        setIsConnect(true);
+    }else{
+        setIsConnect(false);
+    }
     return ret;
 
 }
@@ -88,6 +98,11 @@ int Socket::Connect(const char * ip, unsigned short port, const char * session, 
     int ret = connect(sockeFileDescription, (struct sockaddr*)&sockAddr, sizeof(sockAddr));
     this->session = session;
     this->userid = uid;
+    if(ret != -1){
+        setIsConnect(true);
+    }else{
+        setIsConnect(false);
+    }
     return ret;
 }
 

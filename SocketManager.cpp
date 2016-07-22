@@ -131,9 +131,14 @@ bool socketReceiveData(Socket * socket, int timeout){
         endNum = socket->receiveData(ReceiveDataLength);
         appendEDL.append(ReceiveDataLength);
         if(strlen(ReceiveDataLength) < MAX_MSG_SIZE){
-           callGlobalFunc(FUNCTIONS[0].c_str(),appendEDL.c_str());
-           appendEDL.clear();
+            if(strlen(ReceiveDataLength) == 0){
+               tcpsocket.setIsConnect(false);
+            }else{
+              callGlobalFunc(FUNCTIONS[0].c_str(),appendEDL.c_str());
+              appendEDL.clear();
+            }
         }
+    
         pthread_mutex_unlock(&RECEIVE_SOCKETDATA_MUTEX);
     }while (endNum != -1 && endNum != 0);
     
@@ -184,10 +189,11 @@ bool initlongsocketReadData()
         pthread_attr_destroy(&tAttr);
         return false;
     }
-    
+    void *status;
     pthread_create(&READ_SOCKETDATA_THREAD_ID, &tAttr, longsocketReadData, (void *)0);
+    pthread_join(READ_SOCKETDATA_THREAD_ID, &status);
     pthread_detach(READ_SOCKETDATA_THREAD_ID);
-    
+    pthread_mutex_destroy(&READ_SOCKETDATA_MUTEX);
     return true;
 }
 
@@ -233,25 +239,15 @@ void SocketManager::CallBackData(){
 
 
 bool SocketManager::sendData(std::string message){
-    if(tcpsocket.getSockFileDescription() != -1){
+    if(tcpsocket.getIsConnect() == true){
        pthread_mutex_lock(&SEND_SOCKETDATA_MUTEX);
        tcpsocket.sendData(message.c_str(), strlen(message.c_str()), 0);
        pthread_mutex_unlock(&SEND_SOCKETDATA_MUTEX);
        return true;
+    }else{
+        printf("检查Socket是否正确连接");
     }
     return false;
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
