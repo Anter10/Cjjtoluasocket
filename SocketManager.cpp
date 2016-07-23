@@ -132,13 +132,13 @@ bool socketReceiveData(Socket * socket, int timeout){
         appendEDL.append(ReceiveDataLength);
         if(strlen(ReceiveDataLength) < MAX_MSG_SIZE){
             if(strlen(ReceiveDataLength) == 0){
-               tcpsocket.setIsConnect(false);
+              tcpsocket.Close();
             }else{
               callGlobalFunc(FUNCTIONS[0].c_str(),appendEDL.c_str());
               appendEDL.clear();
             }
         }
-    
+        
         pthread_mutex_unlock(&RECEIVE_SOCKETDATA_MUTEX);
     }while (endNum != -1 && endNum != 0);
     
@@ -213,7 +213,7 @@ bool initTcpSocket()
     if (TCP_CURRENT_LINK_STATUE == 1)
     {
        pthread_mutex_unlock(&TCP_SOCKET_MUTEX);
-        return false;
+       return false;
     }
     TCP_CURRENT_LINK_STATUE = 1;
     pthread_mutex_unlock(&TCP_SOCKET_MUTEX);

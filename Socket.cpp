@@ -47,9 +47,10 @@ int Socket::createSocket(){
 }
 
 void Socket::Close(){
-    shutdown(sockeFileDescription,2);
+    shutdown(sockeFileDescription,SHUTTYPE_W_R);
     close(sockeFileDescription);
     sockeFileDescription  = -1;
+    isconnect = false;
 }
 
 int Socket::getError(){
@@ -125,11 +126,11 @@ int Socket::sendData(const char * buffer,int bufferLength, int flags){
 }
 
 int Socket::sendToUdpServer(const char *buffer, int bufferLength, int flags, sockaddr *destinationAddress, int destinationAddressLength){
-    return 1;
+    return -1;
 }
 
 int Socket::receiveFromUDPData(const char *buffer, int bufferLength, int flags, sockaddr *fromAddress, int *fromAddressLength){
-    return 1;
+    return -1;
 }
 
 int Socket::receiveData(const char * buffer){

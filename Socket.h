@@ -49,7 +49,7 @@
 #define SOCKET_FILE_DESCRIPTION 1
 
 
-#define SHUTTYPE   2
+#define SHUTTYPE_W_R   2
 
 #define MAX_MSG_SIZE 10 * 1024		// 最大消息数量
 #define BLOCKSECONDS	30			//
