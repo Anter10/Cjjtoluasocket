@@ -59,6 +59,11 @@
 #define SUCCESS  0
 #define ERROR   -1
 
+#define SOCKET_DO_SUCCESS 0 // 操作成功
+#define SOCKET_DO_FAILURE -1 // 操作失败
+
+
+
 typedef struct sockaddr_in SOCKADDRS;
 
 struct SMData{
@@ -226,6 +231,7 @@ public:
     // @connect socket是否连接 false表示还没有连接 true为连接状态
     void setIsConnect(bool connect){
         isconnect = connect;
+//        setReceiveDataTimeout(0);
     }
     
     // 获得连接状态

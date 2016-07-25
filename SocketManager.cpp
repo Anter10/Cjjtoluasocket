@@ -18,6 +18,8 @@ extern "C" {
 #include "Socket.h"
 #include <list>
 #include <string>
+
+
 using namespace std;
 
 // TCP 管理的socket对象
@@ -121,30 +123,6 @@ void callGlobalFunc(const char * func, const char * data){
    
 }
 
-
-// 读取数据
-bool socketReceiveData(Socket * socket, int timeout){
-    long endNum = 0;
-    do {
-        memset(ReceiveDataLength, 0, MAX_MSG_SIZE);
-        pthread_mutex_lock(&RECEIVE_SOCKETDATA_MUTEX);
-        endNum = socket->receiveData(ReceiveDataLength);
-        appendEDL.append(ReceiveDataLength);
-        if(strlen(ReceiveDataLength) < MAX_MSG_SIZE){
-            if(strlen(ReceiveDataLength) == 0){
-              tcpsocket.Close();
-            }else{
-              callGlobalFunc(FUNCTIONS[0].c_str(),appendEDL.c_str());
-              appendEDL.clear();
-            }
-        }
-        
-        pthread_mutex_unlock(&RECEIVE_SOCKETDATA_MUTEX);
-    }while (endNum != -1 && endNum != 0);
-    
-    return false;
-}
-
 void closeTcpSocket(){
     if (tcpsocket.getSockFileDescription() == -1)
     {
@@ -152,7 +130,37 @@ void closeTcpSocket(){
     }
 }
 
-void* longsocketReadData(void * param){
+
+// 读取数据
+bool socketReceiveData(Socket * socket, int timeout){
+    pthread_mutex_lock(&RECEIVE_SOCKETDATA_MUTEX);
+    long endNum = 0;
+    int count1 = 0;
+    do {
+        count1 = count1 + 1;
+       
+        memset(ReceiveDataLength, 0, MAX_MSG_SIZE);
+        endNum = socket->receiveData(ReceiveDataLength);
+        appendEDL.append(ReceiveDataLength);
+        if(strlen(ReceiveDataLength) < MAX_MSG_SIZE){
+            if(strlen(appendEDL.c_str()) > 0){
+              printf("appendEDL = %s",appendEDL.c_str());
+              callGlobalFunc(FUNCTIONS[0].c_str(),appendEDL.c_str());
+              appendEDL.clear();
+             
+            }else if(endNum == 0){
+                tcpsocket.Close();
+            }
+        }
+        pthread_mutex_unlock(&RECEIVE_SOCKETDATA_MUTEX);
+       
+    }while (endNum != -1 && endNum != 0);
+    
+    return false;
+}
+
+
+void* tcpReadData(void * param){
     try
     {
        socketReceiveData(&tcpsocket,0);
@@ -162,6 +170,7 @@ void* longsocketReadData(void * param){
     {
         printf("读取数据失败");
     }
+    printf("读取数据成功");
     pthread_mutex_lock(&READ_SOCKETDATA_MUTEX);
     READ_SOCKETDATA_STATUE = 0;
     pthread_mutex_unlock(&READ_SOCKETDATA_MUTEX);
@@ -170,7 +179,7 @@ void* longsocketReadData(void * param){
 }
 
 
-bool initlongsocketReadData()
+bool initTCPReadData()
 {
     pthread_mutex_lock(&READ_SOCKETDATA_MUTEX);
     if (READ_SOCKETDATA_STATUE == 1)
@@ -190,7 +199,7 @@ bool initlongsocketReadData()
         return false;
     }
     void *status;
-    pthread_create(&READ_SOCKETDATA_THREAD_ID, &tAttr, longsocketReadData, (void *)0);
+    pthread_create(&READ_SOCKETDATA_THREAD_ID, &tAttr, tcpReadData, (void *)0);
     pthread_join(READ_SOCKETDATA_THREAD_ID, &status);
     pthread_detach(READ_SOCKETDATA_THREAD_ID);
     pthread_mutex_destroy(&READ_SOCKETDATA_MUTEX);
@@ -201,7 +210,7 @@ bool initlongsocketReadData()
 
 // 初始化当前使用的socket
 void * initTcpSocket(void *){
-    initlongsocketReadData();
+    initTCPReadData();
     TCP_CURRENT_LINK_STATUE = 0;
 }
 

@@ -29,7 +29,7 @@ Socket::Socket(const char * ip, unsigned short port){
 
 
 Socket::~Socket(){
-    
+    Close();
 }
 
 
